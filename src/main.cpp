@@ -9,7 +9,7 @@
 
 #include "texture.hpp"
 
-#include "xspr.h"
+#include "texture_data.h"
 
 template <typename T>
 static T max(T o1, T o2) {
@@ -74,33 +74,40 @@ int main(void) {
     int selectX = 0;
     int selectY = 0;
 
+    // U.I. Scaling
     int sF = 10;
     int cellPadding = 5;
+
+    // 3 * sF gets the width of one cell - cellpadding * 2  makes it so that
+    // there is cell padding on all sides
     int cellTextSz = 3*sF - cellPadding*2;
-    
+
+    // Scaled texture    
     texture_t XMarker = allocTexture(cellTextSz, cellTextSz);
     texture_t OMarker = allocTexture(cellTextSz, cellTextSz);
     texture_t tttGrid = allocTexture(t_tgrid.width*sF, t_tgrid.height*sF);
     texture_t selectMarker = allocTexture(cellTextSz, cellTextSz);
 
+    // Scale texture to required size
     scaleTexture(&t_xspr, &XMarker);
     scaleTexture(&t_ospr, &OMarker);
     scaleTexture(&t_tgrid, &tttGrid);
     scaleTexture(&t_select, &selectMarker);
 
+    // Tetris grid
     std::uint8_t grid[9] = {
         0, 0, 0,
         0, 0, 0,
         0, 0, 0
     };
 
+    // Current person playing
     bool currentPerson = false;
 
     long ticker = 0;
     while(running) {
         // draw_rect(px, py, 25, 25, 150);
         blitTexture(0, 0, &tttGrid);
-
 
         // Draw the tic tac toe grid
         for (int y=0; y<3; y++) {
@@ -130,6 +137,7 @@ int main(void) {
             drawMark(4, 0, &OMarker, sF, cellPadding);
         }
 
+        // Get key input
         std::uint8_t ksc = os_GetCSC();
 
         if (ksc == 15) running = false;
@@ -153,6 +161,8 @@ int main(void) {
         }
         
         gfx_SwapDraw();
+
+        // Clears the scren
         memset(gfx_vbuffer, 0, GFX_LCD_WIDTH * GFX_LCD_HEIGHT);
 
         ticker ++;
@@ -160,12 +170,16 @@ int main(void) {
 
     gfx_End();
 
-    printf("%d Bytes used for textures\n", textureBytesAlloc);
+    printf("%d Bytes used for textures\n", getNumTextBytesAllocd());
 
+    // Clean up after the program ends
     destroyTexture(&XMarker);
     destroyTexture(&OMarker);
     destroyTexture(&tttGrid);
     destroyTexture(&selectMarker);
+
+    while (!os_GetCSC());
+    
 
     // Down 1
     // Left 2
