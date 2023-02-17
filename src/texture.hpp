@@ -13,11 +13,8 @@ struct texture_t {
 static int textureBytesAlloc = 0;
 
 texture_t allocTexture(int w, int h);
-
 texture_t wrapArrayTexture(std::uint8_t* d, int w, int h);
-
 void blitTexture(int px, int py, const texture_t* t);
-
 void scaleTexture(const texture_t* in, texture_t* out);
-
 void destroyTexture(texture_t* data);
+int getNumTextBytesAllocd();

@@ -76,3 +76,7 @@ void destroyTexture(texture_t* data) {
 
     data->data = nullptr;
 }
+
+int getNumTextBytesAllocd() {
+    return textureBytesAlloc;
+}
