@@ -1,4 +1,5 @@
 #include <c++/cstdint>
+#include "texture.hpp"
 
 std::uint8_t d_xspr[] = {
     255, 0,   0,   0,   255,
@@ -7,9 +8,7 @@ std::uint8_t d_xspr[] = {
     0,   255, 0,   255, 0,
     255, 0,   0,   0,   255
 };
-
-#define XsprWIDTH 5
-#define XsprHEIGHT 5
+const texture_t t_xspr = wrapArrayTexture(d_xspr, 5, 5);
 
 std::uint8_t d_ospr[] = {
     0,   255, 255, 255, 0,
@@ -18,9 +17,7 @@ std::uint8_t d_ospr[] = {
     255, 0,   0,   0,   255,
     0,   255, 255, 255, 0
 };
-
-#define OsprWIDTH 5
-#define OsprHEIGHT 5
+const texture_t t_ospr = wrapArrayTexture(d_ospr, 5, 5);
 
 std::uint8_t d_tgrid[] = {
     0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,
@@ -35,17 +32,17 @@ std::uint8_t d_tgrid[] = {
     0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,
     0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,
 };
+const texture_t t_tgrid = wrapArrayTexture(d_tgrid, 11, 11);
 
-#define tgridWIDTH 11
-#define tgridHEIGHT 11
-
-std::uint8_t d_tselect[] = {
+std::uint8_t d_select[] = {
     0, 0,   0,   0,   0,
     0, 255, 255, 255, 0,
     0, 255, 255, 255, 0,
     0, 255, 255, 255, 0,
     0, 0,   0,   0,   0,
 };
+const texture_t t_select = wrapArrayTexture(d_select, 5, 5);
 
-#define tselectWIDTH 5
-#define tselectHEIGHT 5
+
+std::uint8_t d_current[] = { 0,255,255,255,0,0,0,0,0,0,0,0,0,0,0,255,255,0,0,0,0,0,0,0,0,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0,0,0,0,255,0,255,0,0,0,0,255,0,255,0,255,255,0,255,255,0,255,255,0,255,0,0,0,255,255,255,255,0,0,0,0,255,0,0,0,255,0,0,255,0,0,255,0,0,255,255,0,0,0,255,0,0,255,255,255,0,255,255,255,0,255,0,0,255,0,0,255,255,0,255,0,255,0,0,255,0 };
+const texture_t t_current = wrapArrayTexture(d_current, 25, 5);

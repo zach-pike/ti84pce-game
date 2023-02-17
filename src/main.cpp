@@ -7,90 +7,20 @@
 #include <c++/cstdint>
 #include <c++/cmath>
 
+#include "texture.hpp"
+
 #include "xspr.h"
 
 template <typename T>
-T max(T o1, T o2) {
+static T max(T o1, T o2) {
     if (o1 > o2) return o1;
     return o2;
 }
 
 template <typename T>
-T min(T o1, T o2) {
+static T min(T o1, T o2) {
     if (o1 < o2) return o1;
     return o2;
-}
-
-
-struct texture_t {
-    int width;
-    int height;
-    std::uint8_t* data;
-    bool needsFreeing;
-};
-
-static int textureBytesAlloc = 0;
-
-texture_t allocTexture(int w, int h) {
-    texture_t t;
-
-    t.width = w;
-    t.height = h;
-    t.data = (std::uint8_t*) malloc(w*h);
-    t.needsFreeing = true;
-
-    textureBytesAlloc += w * h;
-
-    return t;
-}
-
-texture_t wrapArrayTexture(std::uint8_t* d, int w, int h) {
-    texture_t t;
-
-    t.width = w;
-    t.height = h;
-    t.data = d;
-    t.needsFreeing = false;
-
-    return t;
-}
-
-void blitTexture(int px, int py, const texture_t* t) {
-    int cy = py > 0 ? 0 : 0 - py;
-    for(int y=max(0, py); y < min(py + t->height, GFX_LCD_HEIGHT); y++) {
-        int cx = px > 0 ? 0 : 0 - px;
-        for(int x=max(0, px); x < min(px + t->width, GFX_LCD_WIDTH); x++) {
-            gfx_vbuffer[y][x] = t->data[cy * t->width + cx];
-            cx++;
-        }
-        cy++;
-    }
-}
-
-void scaleTexture(const texture_t* in, texture_t* out) {
-    for (int y=0; y < out->height; y++) {
-        for (int x=0; x < out->width; x++) {
-            double normX = (double) x / (double) out->width;
-            double normY = (double) y / (double) out->width;
-
-            normX *= in->width;
-            normY *= in->height;
-
-            int fx = std::floor(normX);
-            int fy = std::floor(normY);
-
-            out->data[y * out->width + x] = in->data[fy * in->width + fx];
-        }
-    }
-}
-
-void destroyTexture(texture_t* data) {
-    if (data->needsFreeing == false) return;
-    free(data->data);
-
-    textureBytesAlloc -= data->width * data->height;
-
-    data->data = nullptr;
 }
 
 void draw_rect(int x, int y, int sx, int sy, std::uint8_t v) {
@@ -106,6 +36,33 @@ void drawMark(int x, int y, const texture_t* t, int sF, int cellPad) {
     blitTexture(cellPad + (textSz + cellPad*2 + sF)*x, cellPad + (textSz + cellPad*2 + sF)*y, t);
 }
 
+std::uint8_t check(std::uint8_t o1, std::uint8_t o2, std::uint8_t o3) {
+    if (o1 == 1 && o2 == 1 && o3 == 1) {
+        return 1;
+    } else if (o1 == 2 && o2 == 2 && o3 == 2) {
+        return 2;
+    }
+    return 0;
+
+}
+
+std::uint8_t checkWin(std::uint8_t b[9]) {
+    int w = 0;
+
+    if (w = check(b[0], b[1], b[2])) return w;
+    if (w = check(b[3], b[4], b[5])) return w;
+    if (w = check(b[6], b[7], b[8])) return w;
+
+    if (w = check(b[0], b[3], b[6])) return w;
+    if (w = check(b[1], b[4], b[7])) return w;
+    if (w = check(b[2], b[5], b[8])) return w;
+
+    if (w = check(b[0], b[4], b[8])) return w;
+    if (w = check(b[2], b[4], b[6])) return w;
+
+    return w;
+} 
+
 int main(void) {
     os_ClrHome();
 
@@ -114,28 +71,22 @@ int main(void) {
 
     bool running = true;
 
-    int px = 0;
-    int py = 0;
-
-
-    texture_t xsprOG = wrapArrayTexture(d_xspr, XsprWIDTH, XsprHEIGHT);
-    texture_t osprOG = wrapArrayTexture(d_ospr, OsprWIDTH, OsprHEIGHT);
-    texture_t tgridOG = wrapArrayTexture(d_tgrid, tgridWIDTH, tgridHEIGHT);
-    texture_t tselectOG = wrapArrayTexture(d_tselect, tselectWIDTH, tselectHEIGHT);
+    int selectX = 0;
+    int selectY = 0;
 
     int sF = 10;
     int cellPadding = 5;
     int cellTextSz = 3*sF - cellPadding*2;
     
-    texture_t scaledX = allocTexture(cellTextSz, cellTextSz);
-    texture_t scaledO = allocTexture(cellTextSz, cellTextSz);
-    texture_t scaledGrid = allocTexture(tgridWIDTH*sF, tgridHEIGHT*sF);
-    texture_t scaledSelect = allocTexture(cellTextSz, cellTextSz);
+    texture_t XMarker = allocTexture(cellTextSz, cellTextSz);
+    texture_t OMarker = allocTexture(cellTextSz, cellTextSz);
+    texture_t tttGrid = allocTexture(t_tgrid.width*sF, t_tgrid.height*sF);
+    texture_t selectMarker = allocTexture(cellTextSz, cellTextSz);
 
-    scaleTexture(&xsprOG, &scaledX);
-    scaleTexture(&osprOG, &scaledO);
-    scaleTexture(&tgridOG, &scaledGrid);
-    scaleTexture(&tselectOG, &scaledSelect);
+    scaleTexture(&t_xspr, &XMarker);
+    scaleTexture(&t_ospr, &OMarker);
+    scaleTexture(&t_tgrid, &tttGrid);
+    scaleTexture(&t_select, &selectMarker);
 
     std::uint8_t grid[9] = {
         0, 0, 0,
@@ -145,49 +96,76 @@ int main(void) {
 
     bool currentPerson = false;
 
-
+    long ticker = 0;
     while(running) {
         // draw_rect(px, py, 25, 25, 150);
-        blitTexture(0, 0, &scaledGrid);
+        blitTexture(0, 0, &tttGrid);
 
+
+        // Draw the tic tac toe grid
         for (int y=0; y<3; y++) {
             for (int x=0; x<3; x++) {
                 std::uint8_t a = grid[y*3 + x];
                 if (a == 0) continue;
-                else if (a == 1) drawMark(x, y, &scaledX, sF, cellPadding);
-                else if (a == 2) drawMark(x, y, &scaledO, sF, cellPadding);
+                else if (a == 1) drawMark(x, y, &XMarker, sF, cellPadding);
+                else if (a == 2) drawMark(x, y, &OMarker, sF, cellPadding);
             }
         }
 
-        texture_t* playerTexture = !currentPerson ? &scaledX : &scaledO;
-        drawMark(px, py, &scaledSelect, sF, cellPadding);
+        // Determine the texture for the current player
+        texture_t* playerTexture = !currentPerson ? &XMarker : &OMarker;
+
+        // Display current player next to grid
         drawMark(3, 0, playerTexture, sF, cellPadding);
+
+        // Flash the select marker so you can see under it
+        if ((ticker & 0b10) == 0b10)  
+            drawMark(selectX, selectY, &selectMarker, sF, cellPadding);
+
+        // Check for wins and display if there is
+        std::uint8_t w = checkWin(grid);
+        if (w == 1) {
+            drawMark(4, 0, &XMarker, sF, cellPadding);
+        } else if (w == 2) {
+            drawMark(4, 0, &OMarker, sF, cellPadding);
+        }
 
         std::uint8_t ksc = os_GetCSC();
 
         if (ksc == 15) running = false;
-        else if (ksc == 1) py = min(py + 1, 2);
-        else if (ksc == 2) px = max(px - 1, 0);
-        else if (ksc == 3) px = min(px + 1, 2);
-        else if (ksc == 4) py = max(py - 1, 0);
+        else if (ksc == 1) selectY = min(selectY + 1, 2);
+        else if (ksc == 2) selectX = max(selectX - 1, 0);
+        else if (ksc == 3) selectX = min(selectX + 1, 2);
+        else if (ksc == 4) selectY = max(selectY - 1, 0);
         else if (ksc == 9) {
             // If click then we place
-            int index = py * 3 + px;
-            grid[index] = !currentPerson ? 1 : 2;
-            currentPerson = !currentPerson;
+            int index = selectY * 3 + selectX;
+
+            // If the grid spot is empty and no one has won
+            if (grid[index] == 0 && w == 0) {
+                grid[index] = !currentPerson ? 1 : 2;
+                currentPerson = !currentPerson;
+            } else if (w > 0) {
+                // If someone has won and presses enter it clears the board
+                memset(&grid[0], 0, 9);
+                currentPerson = false;
+            }
         }
         
         gfx_SwapDraw();
         memset(gfx_vbuffer, 0, GFX_LCD_WIDTH * GFX_LCD_HEIGHT);
+
+        ticker ++;
     }
 
     gfx_End();
 
     printf("%d Bytes used for textures\n", textureBytesAlloc);
 
-    destroyTexture(&scaledX);
-    destroyTexture(&scaledO);
-    destroyTexture(&scaledGrid);
+    destroyTexture(&XMarker);
+    destroyTexture(&OMarker);
+    destroyTexture(&tttGrid);
+    destroyTexture(&selectMarker);
 
     // Down 1
     // Left 2
