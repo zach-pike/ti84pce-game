@@ -10,8 +10,6 @@ struct texture_t {
     bool needsFreeing;
 };
 
-static int textureBytesAlloc = 0;
-
 texture_t allocTexture(int w, int h);
 texture_t wrapArrayTexture(std::uint8_t* d, int w, int h);
 void blitTexture(int px, int py, const texture_t* t);

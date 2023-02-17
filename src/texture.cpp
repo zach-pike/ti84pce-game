@@ -3,6 +3,8 @@
 #include <graphx.h>
 #include <c++/cmath>
 
+static int textureBytesAlloc = 0;
+
 template <typename T>
 static T max(T o1, T o2) {
     if (o1 > o2) return o1;
