@@ -1,6 +1,7 @@
 #include <c++/cstdint>
 #include "texture.hpp"
 
+// X for player
 std::uint8_t d_xspr[] = {
     255, 0,   0,   0,   255,
     0,   255, 0,   255, 0,
@@ -10,6 +11,7 @@ std::uint8_t d_xspr[] = {
 };
 const texture_t t_xspr = wrapArrayTexture(d_xspr, 5, 5);
 
+// O for player
 std::uint8_t d_ospr[] = {
     0,   255, 255, 255, 0,
     255, 0,   0,   0,   255,
@@ -19,6 +21,7 @@ std::uint8_t d_ospr[] = {
 };
 const texture_t t_ospr = wrapArrayTexture(d_ospr, 5, 5);
 
+// Grid itsself
 std::uint8_t d_tgrid[] = {
     0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,
     0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,
@@ -34,6 +37,7 @@ std::uint8_t d_tgrid[] = {
 };
 const texture_t t_tgrid = wrapArrayTexture(d_tgrid, 11, 11);
 
+// Flashing selected grid marker
 std::uint8_t d_select[] = {
     0, 0,   0,   0,   0,
     0, 255, 255, 255, 0,
@@ -43,5 +47,6 @@ std::uint8_t d_select[] = {
 };
 const texture_t t_select = wrapArrayTexture(d_select, 5, 5);
 
+// Text that should say 'current'
 std::uint8_t d_current[] = { 0,255,255,255,0,0,0,0,0,0,0,0,0,0,0,255,255,0,0,0,0,0,0,0,0,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,255,0,0,0,0,0,0,0,255,0,255,0,0,0,0,255,0,255,0,255,255,0,255,255,0,255,255,0,255,0,0,0,255,255,255,255,0,0,0,0,255,0,0,0,255,0,0,255,0,0,255,0,0,255,255,0,0,0,255,0,0,255,255,255,0,255,255,255,0,255,0,0,255,0,0,255,255,0,255,0,255,0,0,255,0 };
 const texture_t t_current = wrapArrayTexture(d_current, 25, 5);
