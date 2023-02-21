@@ -1,5 +1,5 @@
 #include <c++/cstdint>
-#include "texture.hpp"
+#include "texture/texture.hpp"
 
 // X for player
 std::uint8_t d_xspr[] = {

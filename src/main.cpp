@@ -7,29 +7,10 @@
 #include <c++/cstdint>
 #include <c++/cmath>
 
-#include "texture.hpp"
+#include "texture/texture.hpp"
 
 #include "texture_data.h"
-
-template <typename T>
-static T max(T o1, T o2) {
-    if (o1 > o2) return o1;
-    return o2;
-}
-
-template <typename T>
-static T min(T o1, T o2) {
-    if (o1 < o2) return o1;
-    return o2;
-}
-
-void draw_rect(int x, int y, int sx, int sy, std::uint8_t v) {
-    for (int j=max(0, y); j<min(y+sy, GFX_LCD_HEIGHT); j++) {
-        for (int i=max(0, x); i<min(x+sx, GFX_LCD_WIDTH); i++) {
-            gfx_vbuffer[j][i] = v;
-        }
-    }
-}
+#include "utils.hpp"
 
 void drawMark(int x, int y, const texture_t* t, int sF, int cellPad) {
     int textSz = 3*sF - cellPad*2;
@@ -49,16 +30,14 @@ std::uint8_t check(std::uint8_t o1, std::uint8_t o2, std::uint8_t o3) {
 std::uint8_t checkWin(std::uint8_t b[9]) {
     int w = 0;
 
-    if (w = check(b[0], b[1], b[2])) return w;
-    if (w = check(b[3], b[4], b[5])) return w;
-    if (w = check(b[6], b[7], b[8])) return w;
-
-    if (w = check(b[0], b[3], b[6])) return w;
-    if (w = check(b[1], b[4], b[7])) return w;
-    if (w = check(b[2], b[5], b[8])) return w;
-
-    if (w = check(b[0], b[4], b[8])) return w;
-    if (w = check(b[2], b[4], b[6])) return w;
+    w += check(b[0], b[1], b[2]);
+    w += check(b[3], b[4], b[5]);
+    w += check(b[6], b[7], b[8]);
+    w += check(b[0], b[3], b[6]);
+    w += check(b[1], b[4], b[7]);
+    w += check(b[2], b[5], b[8]);
+    w += check(b[0], b[4], b[8]);
+    w += check(b[2], b[4], b[6]);
 
     return w;
 } 
